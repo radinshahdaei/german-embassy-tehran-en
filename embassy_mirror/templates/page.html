@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ asset_prefix }}static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ home_href }}">Tehran Embassy — English mirror</a>
+      <nav aria-label="Page actions">
+        <a href="{{ source_url }}" target="_blank" rel="noopener noreferrer">Official German page ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="warning" role="note">
+    <strong>Unofficial machine translation.</strong>
+    Verify safety, visa, consular, legal, fee, deadline, and opening-hour information on the official page.
+  </div>
+
+  <main class="page-shell">
+    {% if partial %}
+      <div class="translation-error">
+        Some text may remain in German because translation was incomplete{% if error %}: {{ error }}{% endif %}.
+      </div>
+    {% endif %}
+
+    <article class="article-content">
+      {{ content | safe }}
+    </article>
+
+    <details class="original-panel">
+      <summary>Show extracted German original</summary>
+      <div class="article-content original-language" lang="de">
+        {{ original_content | safe }}
+      </div>
+    </details>
+
+    <footer class="page-footer">
+      <p>Source fetched: {{ fetched_at }}. Original title: <span lang="de">{{ title_de }}</span>.</p>
+      <p>Source content: © Auswärtiges Amt. This local mirror is not affiliated with or endorsed by the German Federal Foreign Office.</p>
+    </footer>
+  </main>
+</body>
+</html>

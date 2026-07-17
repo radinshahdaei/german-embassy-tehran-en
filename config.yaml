@@ -1,0 +1,12 @@
+start_url: https://teheran.diplo.de/ir-de
+path_prefix: /ir-de
+source_lang: de
+target_lang: en
+translator_url: http://localhost:5001
+translator_api_key: ""
+crawl_delay_seconds: 1.0
+max_pages: 0
+robots_mode: respect
+request_timeout_seconds: 30
+data_dir: data
+site_dir: site

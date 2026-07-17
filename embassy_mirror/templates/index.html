@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="static/style.css">
+  <script src="static/search.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Local, unofficial machine translation</p>
+      <h1>German Embassy Tehran<br>English text mirror</h1>
+      <p class="lede">A locally generated, searchable reading copy of pages under <code>teheran.diplo.de/ir-de</code>.</p>
+      <div class="stats"><strong>{{ page_count }}</strong> mirrored pages · generated {{ generated_at }}</div>
+    </div>
+  </header>
+
+  <main class="index-shell">
+    <div class="warning" role="note">
+      <strong>Always verify critical information in German.</strong>
+      Travel warnings, border access, visas, consular procedures, laws, fees, dates, addresses, and operating hours can change.
+    </div>
+
+    {% if home_href %}
+    <section class="featured-card">
+      <div>
+        <p class="eyebrow">Start here</p>
+        <h2><a href="{{ home_href }}">{{ home_title }}</a></h2>
+        <p>{{ home_snippet }}</p>
+      </div>
+      <a class="button" href="{{ home_href }}">Open home page</a>
+    </section>
+    {% endif %}
+
+    <section aria-labelledby="all-pages-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Browse and search</p>
+          <h2 id="all-pages-heading">All mirrored pages</h2>
+        </div>
+        <label class="search-box">
+          <span class="sr-only">Search pages</span>
+          <input id="search-input" type="search" placeholder="Search English content…" autocomplete="off">
+        </label>
+      </div>
+      <p id="search-status" class="search-status" aria-live="polite"></p>
+      <div id="page-grid" class="page-grid">
+      {% for page in pages %}
+        <article class="page-card" data-title="{{ page.title | lower }} {{ page.title_de | lower }}">
+          <h3><a href="{{ page.href }}">{{ page.title }}</a></h3>
+          {% if page.title_de and page.title_de != page.title %}<p class="german-title" lang="de">{{ page.title_de }}</p>{% endif %}
+          <p>{{ page.snippet }}</p>
+          {% if page.partial %}<span class="badge">Partial translation</span>{% endif %}
+        </article>
+      {% endfor %}
+      </div>
+      <div id="search-results" class="page-grid" hidden></div>
+    </section>
+
+    <footer class="page-footer">
+      <p>Source content: © Auswärtiges Amt. This project is an unofficial personal-use tool and is not affiliated with the German Federal Foreign Office.</p>
+    </footer>
+  </main>
+</body>
+</html>
