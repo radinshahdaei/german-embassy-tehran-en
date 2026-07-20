@@ -17,13 +17,9 @@ cd german-embassy-tehran-en
 
 Then open `http://localhost:8080`.
 
-The repository already includes a pre-built mirror in `site/`, so you can also browse immediately without crawling:
+**Live mirror:** [radinshahdaei.github.io/german-embassy-tehran-en](https://radinshahdaei.github.io/german-embassy-tehran-en/) — updated via `make deploy`.
 
-```bash
-python3 -m http.server 8080 -d site
-```
-
-**Live mirror:** [radinshahdaei.github.io/german-embassy-tehran-en](https://radinshahdaei.github.io/german-embassy-tehran-en/) — deployed via `make deploy`.
+The `site/` directory is generated locally and not checked into the repository. Run `teheran-mirror crawl` to produce it.
 
 ## How it works
 
