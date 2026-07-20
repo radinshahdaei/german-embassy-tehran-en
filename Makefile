@@ -25,6 +25,15 @@ stop:
 test:
 	python -m pytest -q
 
+deploy:
+	rm -rf /tmp/deploy-pages
+	git clone https://github.com/radinshahdaei/radinshahdaei.github.io.git /tmp/deploy-pages
+	rm -rf /tmp/deploy-pages/german-embassy-tehran-en
+	cp -r site /tmp/deploy-pages/german-embassy-tehran-en
+	touch /tmp/deploy-pages/german-embassy-tehran-en/.nojekyll
+	cd /tmp/deploy-pages && git add german-embassy-tehran-en/ && git commit -m "Update Tehran embassy mirror" && git push
+	rm -rf /tmp/deploy-pages
+
 clean:
 	rm -f data/mirror.db data/mirror.db-shm data/mirror.db-wal
 	rm -rf site/*

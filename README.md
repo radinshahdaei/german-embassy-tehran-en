@@ -23,6 +23,8 @@ The repository already includes a pre-built mirror in `site/`, so you can also b
 python3 -m http.server 8080 -d site
 ```
 
+**Live mirror:** [radinshahdaei.github.io/german-embassy-tehran-en](https://radinshahdaei.github.io/german-embassy-tehran-en/) — deployed via `make deploy`.
+
 ## How it works
 
 - Crawls only pages under `/ir-de` on `teheran.diplo.de`, respecting `robots.txt` by default.
