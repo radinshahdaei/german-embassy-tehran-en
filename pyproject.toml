@@ -3,9 +3,9 @@ requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "teheran-english-mirror"
+name = "web-mirror"
 version = "1.0.0"
-description = "A respectful local English text mirror for the German Embassy Tehran website"
+description = "Crawl any website, machine-translate content, and generate a static mirror"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -22,13 +22,13 @@ dependencies = [
 test = ["pytest>=8,<9"]
 
 [project.scripts]
-teheran-mirror = "embassy_mirror.cli:main"
+web-mirror = "web_mirror.cli:main"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["embassy_mirror*"]
+include = ["web_mirror*"]
 
 [tool.setuptools.package-data]
-embassy_mirror = ["templates/*.html", "static/*.css", "static/*.js"]
+web_mirror = ["templates/*.html", "static/*.css", "static/*.js"]

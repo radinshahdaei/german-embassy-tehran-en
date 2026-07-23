@@ -4,8 +4,9 @@ import json
 import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
+
+from . import _now
 from typing import Iterator
 
 
@@ -138,7 +139,7 @@ class Storage:
         translated_text: str,
         provider: str,
     ) -> None:
-        now = datetime.now(timezone.utc).isoformat()
+        now = _now()
         with self.connect() as conn:
             conn.execute(
                 """

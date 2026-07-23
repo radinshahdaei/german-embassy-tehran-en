@@ -44,7 +44,8 @@ class ExtractedPage:
     content_hash: str
 
 
-def discover_links(html: str, page_url: str, host: str, path_prefix: str) -> list[str]:
+def discover_links(html: str, page_url: str, host: str, path_prefix: str,
+                   excluded_path_segments: list[str] | None = None) -> list[str]:
     soup = BeautifulSoup(html, "lxml")
     found: set[str] = set()
     for anchor in soup.find_all("a", href=True):
@@ -52,15 +53,18 @@ def discover_links(html: str, page_url: str, host: str, path_prefix: str) -> lis
         if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
             continue
         url = normalize_url(href, page_url)
-        if is_crawlable(url, host, path_prefix):
+        if is_crawlable(url, host, path_prefix, excluded_path_segments):
             found.add(url)
     return sorted(found)
 
 
-def extract_page(html: str, page_url: str, host: str, path_prefix: str) -> ExtractedPage:
+def extract_page(html: str, page_url: str, host: str, path_prefix: str,
+                 generic_h1_patterns: list[str] | None = None,
+                 title_suffix_regex: str = "",
+                 excluded_path_segments: list[str] | None = None) -> ExtractedPage:
     original = BeautifulSoup(html, "lxml")
-    title = _extract_title(original)
-    outgoing = discover_links(html, page_url, host, path_prefix)
+    title = _extract_title(original, generic_h1_patterns, title_suffix_regex)
+    outgoing = discover_links(html, page_url, host, path_prefix, excluded_path_segments)
 
     main = _select_main(original)
     fragment = BeautifulSoup(str(main), "lxml")
@@ -71,7 +75,8 @@ def extract_page(html: str, page_url: str, host: str, path_prefix: str) -> Extra
             node.decompose()
 
     for heading in list(body.find_all("h1")):
-        if heading.get_text(" ", strip=True) == "Willkommen auf den Seiten des Auswärtigen Amts":
+        text = heading.get_text(" ", strip=True)
+        if generic_h1_patterns and any(text == pattern for pattern in generic_h1_patterns):
             heading.decompose()
 
     _replace_images(body, page_url)
@@ -103,20 +108,22 @@ def root_inner_html(soup: BeautifulSoup) -> str:
     return "".join(str(child) for child in root.contents).strip()
 
 
-def _extract_title(soup: BeautifulSoup) -> str:
-    generic = {
-        "Willkommen auf den Seiten des Auswärtigen Amts",
-        "Navigation und Service",
-    }
+def _extract_title(soup: BeautifulSoup,
+                   generic_h1_patterns: list[str] | None = None,
+                   title_suffix_regex: str = "") -> str:
+    patterns = set(generic_h1_patterns) if generic_h1_patterns else set()
     headings = [
         heading.get_text(" ", strip=True)
         for heading in soup.find_all("h1")
-        if heading.get_text(" ", strip=True) not in generic
+        if heading.get_text(" ", strip=True) not in patterns
     ]
     if headings:
         return headings[-1]
     if soup.title and soup.title.string:
-        return re.sub(r"\s+-\s+Auswärtiges Amt\s*$", "", soup.title.string.strip())
+        raw = soup.title.string.strip()
+        if title_suffix_regex:
+            raw = re.sub(title_suffix_regex, "", raw)
+        return raw
     return "Untitled page"
 
 

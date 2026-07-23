@@ -10,16 +10,16 @@
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="{{ home_href }}">Tehran Embassy — English mirror</a>
+      <a class="brand" href="{{ home_href }}">{{ site_title }} — English mirror</a>
       <nav aria-label="Page actions">
-        <a href="{{ source_url }}" target="_blank" rel="noopener noreferrer">Official German page ↗</a>
+        <a href="{{ source_url }}" target="_blank" rel="noopener noreferrer">Official {{ source_language_label }} page ↗</a>
       </nav>
     </div>
   </header>
 
   <div class="warning" role="note">
     <strong>Unofficial machine translation.</strong>
-    Verify safety, visa, consular, legal, fee, deadline, and opening-hour information on the official page.
+    Verify critical information on the official page before relying on it.
   </div>
 
   <main class="page-shell">
@@ -41,8 +41,8 @@
     </details>
 
     <footer class="page-footer">
-      <p>Source fetched: {{ fetched_at }}. Original title: <span lang="de">{{ title_de }}</span>.</p>
-      <p>Source content: © Auswärtiges Amt. This local mirror is not affiliated with or endorsed by the German Federal Foreign Office.</p>
+      <p>Source fetched: {{ fetched_at }}. Original title: <span lang="{{ source_lang }}">{{ title_de }}</span>.</p>
+      <p>Source content: © {{ source_attribution }}. This local mirror is not affiliated with or endorsed by the original publisher.</p>
     </footer>
   </main>
 </body>

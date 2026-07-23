@@ -1,11 +1,19 @@
 from pathlib import Path
 
-from embassy_mirror.extract import extract_page
+from web_mirror.extract import extract_page
 
 
 def test_extracts_safe_main_content():
     html = Path("tests/fixture.html").read_text(encoding="utf-8")
-    page = extract_page(html, "https://teheran.diplo.de/ir-de/test", "teheran.diplo.de", "/ir-de")
+    page = extract_page(
+        html,
+        "https://teheran.diplo.de/ir-de/test",
+        "teheran.diplo.de",
+        "/ir-de",
+        generic_h1_patterns=["Willkommen auf den Seiten des Auswärtigen Amts", "Navigation und Service"],
+        title_suffix_regex=r"\s+-\s+Auswärtiges Amt\s*$",
+        excluded_path_segments=["/suche", "/search", "/kontaktformular", "/newsletter"],
+    )
     assert page.title == "Willkommen"
     assert "Willkommen" in page.content_html
     assert "wichtiger Hinweis" in page.content_html

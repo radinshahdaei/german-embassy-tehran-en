@@ -1,4 +1,4 @@
-from embassy_mirror.urls import is_crawlable, local_filename, normalize_url
+from web_mirror.urls import is_crawlable, local_filename, normalize_url
 
 
 def test_normalize_removes_fragment_and_tracking():
@@ -7,10 +7,14 @@ def test_normalize_removes_fragment_and_tracking():
 
 
 def test_crawl_scope():
-    assert is_crawlable("https://teheran.diplo.de/ir-de/service", "teheran.diplo.de", "/ir-de")
-    assert not is_crawlable("https://teheran.diplo.de/ir-fa/service", "teheran.diplo.de", "/ir-de")
-    assert not is_crawlable("https://example.com/ir-de/service", "teheran.diplo.de", "/ir-de")
-    assert not is_crawlable("https://teheran.diplo.de/ir-de/file.pdf", "teheran.diplo.de", "/ir-de")
+    excluded = ["/suche", "/search", "/kontaktformular", "/newsletter"]
+    assert is_crawlable("https://teheran.diplo.de/ir-de/service", "teheran.diplo.de", "/ir-de", excluded)
+    assert not is_crawlable("https://teheran.diplo.de/ir-fa/service", "teheran.diplo.de", "/ir-de", excluded)
+    assert not is_crawlable("https://example.com/ir-de/service", "teheran.diplo.de", "/ir-de", excluded)
+    assert not is_crawlable("https://teheran.diplo.de/ir-de/file.pdf", "teheran.diplo.de", "/ir-de", excluded)
+    # Path exclusion
+    assert not is_crawlable("https://teheran.diplo.de/ir-de/suche", "teheran.diplo.de", "/ir-de", excluded)
+    assert not is_crawlable("https://teheran.diplo.de/ir-de/newsletter/archiv", "teheran.diplo.de", "/ir-de", excluded)
 
 
 def test_home_filename():

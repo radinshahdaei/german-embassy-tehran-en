@@ -10,3 +10,5 @@ build/
 *.egg-info/
 site/
 student-visa-guide.*
+CLAUDE.md
+COMMIT_CONVENTIONS.md

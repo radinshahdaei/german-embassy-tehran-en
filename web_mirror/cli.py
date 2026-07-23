@@ -15,8 +15,8 @@ from .translate import LibreTranslateClient
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="teheran-mirror",
-        description="Build and serve a local English text mirror of teheran.diplo.de/ir-de",
+        prog="web-mirror",
+        description="Crawl, translate, and generate a static mirror of any website",
     )
     parser.add_argument("--config", type=Path, default=None, help="Path to config.yaml (default: config.yaml)")
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
@@ -28,7 +28,6 @@ def build_parser() -> argparse.ArgumentParser:
     crawl.add_argument("--render-only", action="store_true", help="Render existing cached pages without crawling")
 
     render = subparsers.add_parser("render", help="Render existing cached pages")
-    render.add_argument("--clean", action="store_true", help="Reserved for compatibility")
 
     doctor = subparsers.add_parser("doctor", help="Check the local translator and stored mirror")
     doctor.add_argument("--strict", action="store_true", help="Return a failure code if translator is unavailable")

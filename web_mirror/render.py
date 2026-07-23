@@ -4,13 +4,14 @@ import json
 import os
 import re
 import shutil
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from . import _now
 from .config import Settings
 from .storage import PageRecord, Storage
 from .urls import is_crawlable, local_filename, normalize_url
@@ -21,7 +22,7 @@ class Renderer:
         self.settings = settings
         self.storage = storage
         self.env = Environment(
-            loader=PackageLoader("embassy_mirror", "templates"),
+            loader=PackageLoader("web_mirror", "templates"),
             autoescape=select_autoescape(["html", "xml"]),
         )
 
@@ -56,6 +57,10 @@ class Renderer:
             error=page.error,
             home_href="../index.html" if current_filename.startswith("pages/") else "index.html",
             asset_prefix="../" if current_filename.startswith("pages/") else "",
+            site_title=self.settings.site_title,
+            source_attribution=self.settings.source_attribution,
+            source_language_label=self.settings.source_language_label,
+            source_lang=self.settings.source_lang,
         )
         destination = self.settings.site_dir / current_filename
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -65,6 +70,8 @@ class Renderer:
         template = self.env.get_template("index.html")
         home_url = normalize_url(self.settings.start_url)
         home = next((p for p in pages if normalize_url(p.url) == home_url), None)
+        parsed = urlsplit(self.settings.start_url)
+        source_display_url = f"{parsed.netloc}{parsed.path}"
         cards = [
             {
                 "title": page.title_en or page.title_de,
@@ -77,13 +84,16 @@ class Renderer:
             if page is not home
         ]
         html = template.render(
-            title="German Embassy Tehran — English mirror",
-            home_title=(home.title_en or home.title_de) if home else "Embassy home page",
+            title=f"{self.settings.site_title} — English mirror",
+            site_title=self.settings.site_title,
+            source_display_url=source_display_url,
+            source_attribution=self.settings.source_attribution,
+            home_title=(home.title_en or home.title_de) if home else "Home page",
             home_href=mapping.get(home.url, "") if home else "",
             home_snippet=_snippet(BeautifulSoup(home.translated_html, "lxml").get_text(" ", strip=True), 360) if home else "",
             pages=cards,
             page_count=len(pages),
-            generated_at=_human_time(datetime.now(timezone.utc).isoformat()),
+            generated_at=_human_time(_now()),
         )
         (self.settings.site_dir / "index.html").write_text(html, encoding="utf-8")
 
@@ -113,7 +123,8 @@ class Renderer:
                 if parsed.scheme in {"http", "https"}:
                     anchor["target"] = "_blank"
                     anchor["rel"] = "noopener noreferrer"
-                    if is_crawlable(normalized, self.settings.host, self.settings.path_prefix):
+                    if is_crawlable(normalized, self.settings.host, self.settings.path_prefix,
+                                    self.settings.excluded_path_segments):
                         anchor["class"] = "not-mirrored"
                         anchor["title"] = "This internal page was not included; open the official site"
         return "".join(str(child) for child in root.contents)
@@ -143,7 +154,8 @@ class Renderer:
     def _write_metadata(self, pages: list[PageRecord]) -> None:
         metadata = {
             "source": self.settings.start_url,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "site_title": self.settings.site_title,
+            "generated_at": _now(),
             "page_count": len(pages),
             "language": self.settings.target_lang,
             "unofficial_machine_translation": True,

@@ -9,8 +9,8 @@ if ! python3 -c "import libretranslate" 2>/dev/null; then
   echo "Installing LibreTranslate…"
   pip install libretranslate
 fi
-if ! python3 -c "import embassy_mirror" 2>/dev/null; then
-  echo "Installing teheran-english-mirror…"
+if ! python3 -c "import web_mirror" 2>/dev/null; then
+  echo "Installing web-mirror…"
   pip install -e .
 fi
 
@@ -40,12 +40,12 @@ done
 echo "Translator is ready."
 
 # ── Verify ────────────────────────────────────────────────
-teheran-mirror doctor --strict
+web-mirror doctor --strict
 
 # ── Crawl, translate, render ──────────────────────────────
-teheran-mirror crawl
+web-mirror crawl
 
 # ── Serve ─────────────────────────────────────────────────
 echo ""
 echo "Starting web server on http://localhost:8080"
-teheran-mirror serve --port 8080
+web-mirror serve --port 8080

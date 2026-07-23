@@ -28,7 +28,8 @@ def normalize_url(raw_url: str, base_url: str | None = None) -> str:
     return urlunsplit((scheme, host, path, "", ""))
 
 
-def is_crawlable(url: str, host: str, path_prefix: str) -> bool:
+def is_crawlable(url: str, host: str, path_prefix: str,
+                 excluded_path_segments: list[str] | None = None) -> bool:
     parsed = urlsplit(url)
     if parsed.scheme not in {"http", "https"}:
         return False
@@ -39,9 +40,10 @@ def is_crawlable(url: str, host: str, path_prefix: str) -> bool:
     suffix = Path(unquote(parsed.path)).suffix.lower()
     if suffix in BINARY_SUFFIXES:
         return False
+    if excluded_path_segments is None:
+        excluded_path_segments = ["/suche", "/search", "/kontaktformular", "/newsletter"]
     lowered = parsed.path.lower()
-    excluded_fragments = ("/suche", "/search", "/kontaktformular", "/newsletter")
-    return not any(fragment in lowered for fragment in excluded_fragments)
+    return not any(fragment.lower() in lowered for fragment in excluded_path_segments)
 
 
 def page_id(url: str) -> str:

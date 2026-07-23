@@ -4,12 +4,11 @@ import logging
 import time
 import urllib.robotparser
 from collections import deque
-from datetime import datetime, timezone
-
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from . import _now
 from .config import Settings
 from .extract import extract_page
 from .storage import PageRecord, Storage
@@ -65,7 +64,10 @@ class Crawler:
                     time.sleep(self.settings.crawl_delay)
 
             for link in outgoing:
-                if link not in queued and is_crawlable(link, self.settings.host, self.settings.path_prefix):
+                if link not in queued and is_crawlable(
+                    link, self.settings.host, self.settings.path_prefix,
+                    self.settings.excluded_path_segments,
+                ):
                     queued.add(link)
                     queue.append(link)
 
@@ -93,7 +95,12 @@ class Crawler:
             self._store_error(url, status, "failed", str(exc))
             return []
 
-        extracted = extract_page(html, url, self.settings.host, self.settings.path_prefix)
+        extracted = extract_page(
+            html, url, self.settings.host, self.settings.path_prefix,
+            generic_h1_patterns=self.settings.generic_h1_patterns,
+            title_suffix_regex=self.settings.title_suffix_regex,
+            excluded_path_segments=self.settings.excluded_path_segments,
+        )
         existing = self.storage.get_page(url)
         if existing and existing.content_hash == extracted.content_hash and existing.translated_html:
             LOGGER.info("Unchanged: %s", url)
@@ -178,7 +185,3 @@ def _read_limited(response: requests.Response) -> bytes:
             raise ValueError(f"HTML response exceeds {MAX_HTML_BYTES} bytes")
         chunks.append(chunk)
     return b"".join(chunks)
-
-
-def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()

@@ -23,6 +23,12 @@ _ENV_MAP: dict[str, str] = {
     "data_dir": "MIRROR_DATA_DIR",
     "site_dir": "MIRROR_SITE_DIR",
     "user_agent": "MIRROR_USER_AGENT",
+    "site_title": "MIRROR_SITE_TITLE",
+    "source_attribution": "MIRROR_SOURCE_ATTRIBUTION",
+    "source_language_label": "MIRROR_SOURCE_LANGUAGE_LABEL",
+    "generic_h1_patterns": "MIRROR_GENERIC_H1_PATTERNS",
+    "title_suffix_regex": "MIRROR_TITLE_SUFFIX_REGEX",
+    "excluded_path_segments": "MIRROR_EXCLUDED_PATH_SEGMENTS",
 }
 
 
@@ -43,6 +49,19 @@ def _resolve(key: str, yaml_data: dict) -> str | int | float:
     return yaml_data.get(key, "")
 
 
+def _resolve_list(key: str, yaml_data: dict) -> list[str]:
+    """Resolve a list config value from env var (comma-separated) or YAML."""
+    env_name = _ENV_MAP.get(key)
+    if env_name:
+        raw = os.getenv(env_name)
+        if raw is not None and raw.strip() != "":
+            return [item.strip() for item in raw.split(",") if item.strip()]
+    value = yaml_data.get(key)
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return []
+
+
 @dataclass(frozen=True)
 class Settings:
     start_url: str
@@ -58,6 +77,12 @@ class Settings:
     data_dir: Path
     site_dir: Path
     user_agent: str
+    site_title: str
+    source_attribution: str
+    source_language_label: str
+    generic_h1_patterns: list[str]
+    title_suffix_regex: str
+    excluded_path_segments: list[str]
 
     @classmethod
     def from_yaml(cls, config_path: Path | None = None) -> "Settings":
@@ -77,6 +102,12 @@ class Settings:
             data_dir=Path(str(_resolve("data_dir", data))),
             site_dir=Path(str(_resolve("site_dir", data))),
             user_agent=str(_resolve("user_agent", data)),
+            site_title=str(_resolve("site_title", data)),
+            source_attribution=str(_resolve("source_attribution", data)),
+            source_language_label=str(_resolve("source_language_label", data)),
+            generic_h1_patterns=_resolve_list("generic_h1_patterns", data),
+            title_suffix_regex=str(_resolve("title_suffix_regex", data) or ""),
+            excluded_path_segments=_resolve_list("excluded_path_segments", data),
         )
 
     @property

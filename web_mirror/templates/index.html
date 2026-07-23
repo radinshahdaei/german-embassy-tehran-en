@@ -12,16 +12,16 @@
   <header class="hero">
     <div class="hero-inner">
       <p class="eyebrow">Local, unofficial machine translation</p>
-      <h1>German Embassy Tehran<br>English text mirror</h1>
-      <p class="lede">A locally generated, searchable reading copy of pages under <code>teheran.diplo.de/ir-de</code>.</p>
+      <h1>{{ site_title }}<br>English text mirror</h1>
+      <p class="lede">A locally generated, searchable reading copy of pages under <code>{{ source_display_url }}</code>.</p>
       <div class="stats"><strong>{{ page_count }}</strong> mirrored pages · generated {{ generated_at }}</div>
     </div>
   </header>
 
   <main class="index-shell">
     <div class="warning" role="note">
-      <strong>Always verify critical information in German.</strong>
-      Travel warnings, border access, visas, consular procedures, laws, fees, dates, addresses, and operating hours can change.
+      <strong>Always verify critical information in the original language.</strong>
+      This is an unofficial machine translation. Content may be outdated, incomplete, or mistranslated.
     </div>
 
     {% if home_href %}
@@ -61,7 +61,7 @@
     </section>
 
     <footer class="page-footer">
-      <p>Source content: © Auswärtiges Amt. This project is an unofficial personal-use tool and is not affiliated with the German Federal Foreign Office.</p>
+      <p>Source content: © {{ source_attribution }}. This project is an unofficial personal-use tool and is not affiliated with the original publisher.</p>
     </footer>
   </main>
 </body>

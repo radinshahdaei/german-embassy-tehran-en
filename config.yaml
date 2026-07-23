@@ -1,12 +1,35 @@
-start_url: https://teheran.diplo.de/ir-de
-path_prefix: /ir-de
+# ── Source website ──
+start_url: ""
+path_prefix: ""
 source_lang: de
 target_lang: en
+
+# ── Translator ──
 translator_url: http://localhost:5001
 translator_api_key: ""
+
+# ── Crawling ──
 crawl_delay_seconds: 1.0
-max_pages: 0
-robots_mode: respect
+max_pages: 0               # 0 = unlimited
+robots_mode: respect        # "respect", "ignore", or "strict"
 request_timeout_seconds: 30
+user_agent: ""
+
+# ── Output ──
 data_dir: data
 site_dir: site
+
+# ── Site identity (used in generated HTML headers, titles, footers) ──
+site_title: ""
+source_attribution: ""
+source_language_label: ""
+
+# ── Content extraction tuning ──
+# h1 texts that should be skipped when determining the page title and stripped from content
+generic_h1_patterns: []
+# Regex to strip from <title> tags; use single-quoted YAML to preserve backslashes
+title_suffix_regex: ""
+
+# ── Crawl filtering ──
+# URL path segments that should never be crawled
+excluded_path_segments: []

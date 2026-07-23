@@ -18,8 +18,8 @@ try { python -c "import libretranslate" } catch {
   Write-Host "Installing LibreTranslate…"
   pip install libretranslate
 }
-try { python -c "import embassy_mirror" } catch {
-  Write-Host "Installing teheran-english-mirror…"
+try { python -c "import web_mirror" } catch {
+  Write-Host "Installing web-mirror…"
   pip install -e .
 }
 
@@ -38,14 +38,14 @@ do {
 Write-Host "Translator is ready."
 
 # ── Verify ────────────────────────────────────────────────
-teheran-mirror doctor --strict
+web-mirror doctor --strict
 if ($LASTEXITCODE -ne 0) { throw "Doctor check failed." }
 
 # ── Crawl, translate, render ──────────────────────────────
-teheran-mirror crawl
+web-mirror crawl
 if ($LASTEXITCODE -ne 0) { throw "Crawl failed." }
 
 # ── Serve ─────────────────────────────────────────────────
 Write-Host ""
 Write-Host "Starting web server on http://localhost:8080"
-teheran-mirror serve --port 8080
+web-mirror serve --port 8080

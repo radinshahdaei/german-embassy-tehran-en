@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Tehran Embassy English Mirror crawls the German Embassy in Tehran's website (`teheran.diplo.de/ir-de`), extracts content, machine-translates it from German to English via LibreTranslate, and generates a static English website in `site/`. This is a personal, unofficial tool — not affiliated with the German Federal Foreign Office.
+Web Mirror crawls a website, extracts content, machine-translates it via LibreTranslate, and generates a static translated website in `site/`. It is configurable for any website — see `config.yaml`.
 
 ## Commands
 
@@ -24,12 +24,12 @@ libretranslate --host 0.0.0.0 --port 5001 --load-only de,en --disable-web-ui
 
 # Terminal 2 — run the mirror:
 pip install -e '.[test]'
-teheran-mirror doctor --strict
-teheran-mirror crawl
-teheran-mirror crawl --max-pages 10   # Trial run
-teheran-mirror serve --port 8080
-teheran-mirror render                 # Regenerate from cache only
-teheran-mirror --config config.local.yaml crawl   # Custom config
+web-mirror doctor --strict
+web-mirror crawl
+web-mirror crawl --max-pages 10   # Trial run
+web-mirror serve --port 8080
+web-mirror render                 # Regenerate from cache only
+web-mirror --config my-site.yaml crawl   # Custom config
 ```
 
 ### Makefile
@@ -53,29 +53,31 @@ pytest tests/test_urls.py -q       # Single test file
 
 ## Architecture
 
-**Data flow:** `teheran.diplo.de` → Crawler → Extract → Translate (via LibreTranslate) → Storage (SQLite) → Render → `site/` static HTML → Serve
+**Data flow:** Source website → Crawler → Extract → Translate (via LibreTranslate) → Storage (SQLite) → Render → `site/` static HTML → Serve
 
 **Key modules:**
 
 | Module | Role |
 |---|---|
-| `embassy_mirror/cli.py` | argparse dispatch: `crawl`, `render`, `doctor`, `serve`; `--config` global flag |
-| `embassy_mirror/config.py` | `Settings` dataclass loaded from `config.yaml` with env var overrides |
-| `embassy_mirror/crawler.py` | BFS crawl queue; respects `robots.txt` and crawl delay; delegates to extract → translate → store |
-| `embassy_mirror/extract.py` | BeautifulSoup HTML extraction: strips scripts/forms/nav, keeps main content, discovers crawlable links |
-| `embassy_mirror/translate.py` | LibreTranslate HTTP client with health check, batch translation, per-block SQLite caching |
-| `embassy_mirror/storage.py` | SQLite (WAL mode): `pages` table (URL, titles, HTML, status, links) and `translations` cache table |
-| `embassy_mirror/render.py` | Jinja2 static site generator: `index.html` (card grid + search), per-page HTML, `search.json`, `mirror.json` |
-| `embassy_mirror/urls.py` | URL normalization, crawl-scope gating, filename generation |
-| `embassy_mirror/server.py` | Stdlib `http.server` (ThreadingTCPServer) for `site/` |
+| `web_mirror/cli.py` | argparse dispatch: `crawl`, `render`, `doctor`, `serve`; `--config` global flag |
+| `web_mirror/config.py` | `Settings` dataclass loaded from `config.yaml` with env var overrides |
+| `web_mirror/crawler.py` | BFS crawl queue; respects `robots.txt` and crawl delay; delegates to extract → translate → store |
+| `web_mirror/extract.py` | BeautifulSoup HTML extraction: strips scripts/forms/nav, keeps main content, discovers crawlable links |
+| `web_mirror/translate.py` | LibreTranslate HTTP client with health check, batch translation, per-block SQLite caching |
+| `web_mirror/storage.py` | SQLite (WAL mode): `pages` table (URL, titles, HTML, status, links) and `translations` cache table |
+| `web_mirror/render.py` | Jinja2 static site generator: `index.html` (card grid + search), per-page HTML, `search.json`, `mirror.json` |
+| `web_mirror/urls.py` | URL normalization, crawl-scope gating, filename generation |
+| `web_mirror/server.py` | Stdlib `http.server` (ThreadingTCPServer) for `site/` |
 
-**Templates:** `embassy_mirror/templates/index.html` (landing page with search) and `page.html` (individual translated page with expandable German originals).
+**Templates:** `web_mirror/templates/index.html` (landing page with search) and `page.html` (individual translated page with expandable originals).
 
-**Static assets:** `embassy_mirror/static/style.css` and `search.js` (client-side full-text search over `search.json`).
+**Static assets:** `web_mirror/static/style.css` and `search.js` (client-side full-text search over `search.json`).
 
 ## Configuration
 
 All settings in `config.yaml` at the project root. Env vars (`MIRROR_*`) override YAML values. Use `--config` to point to an alternate file.
+
+The config is site-agnostic — set `start_url`, `path_prefix`, `site_title`, `source_attribution`, `source_language_label`, and extraction/crawl tuning fields to match your target site.
 
 Defaults use port 5001 for the translator (macOS ControlCenter often binds port 5000).
 

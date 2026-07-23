@@ -2,10 +2,10 @@ from pathlib import Path
 
 import yaml
 
-from embassy_mirror.config import Settings
-from embassy_mirror.render import Renderer
-from embassy_mirror.storage import PageRecord, Storage
-from embassy_mirror.urls import page_id
+from web_mirror.config import Settings
+from web_mirror.render import Renderer
+from web_mirror.storage import PageRecord, Storage
+from web_mirror.urls import page_id
 
 
 def test_renderer_builds_landing_and_rewrites_links(tmp_path: Path):
@@ -24,6 +24,12 @@ def test_renderer_builds_landing_and_rewrites_links(tmp_path: Path):
         "data_dir": str(tmp_path / "data"),
         "site_dir": str(tmp_path / "site"),
         "user_agent": "TestBot/1.0",
+        "site_title": "Test Mirror",
+        "source_attribution": "Test Source",
+        "source_language_label": "German",
+        "generic_h1_patterns": [],
+        "title_suffix_regex": "\\s+-\\s+Auswärtiges Amt\\s*$",
+        "excluded_path_segments": [],
     }))
     settings = Settings.from_yaml(config_path)
     settings.ensure_directories()
